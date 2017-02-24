@@ -5,10 +5,14 @@
 
         </div>
         <div class="col-lg-8">
-            <form class="" action="/login/" method="post"> {% csrf_token %}
-                <input type="text name='username" placeholder="请输入用户名..."/>
-                <input type="text name='password" placeholder="请输入密码..."/>
+            <form class="" action="/login/" method="post">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="请输入用户名..."/>
+                <input type="text" name="password" placeholder="请输入密码..."/>
+                <br/>
+                <hr/>
                 <input type="submit"  class="btn btn-info" value="登录"/>
+                <span style="background-color: red">{{ login_error }}</span>
 
             </form>
 

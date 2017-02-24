@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponseRedirect
 from django.contrib.auth import authenticate
 # Create your views here.
 
@@ -18,7 +18,14 @@ def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-    else:
 
-        print(request.POST)
-    return render(request, 'login.html')
+        user = authenticate(username=username, password=password)
+        if user is not None: #pass authentication
+            return HttpResponseRedirect('/')
+        else: ##密码不对
+            return render(request, 'login.html', {
+                'login_error': 'Worng username or password',
+            })
+
+    else:
+        return render(request, 'login.html')
