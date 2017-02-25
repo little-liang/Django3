@@ -34,6 +34,7 @@ class Host(models.Model):
 #这个是机房表
 class IDC(models.Model):
     name = models.CharField(max_length=64, unique=True)
+    speed = models.CharField(max_length=32, blank=True)
 
     def __str__(self):
         return self.name
