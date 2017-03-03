@@ -1,0 +1,83 @@
+{% extends 'index.html' %}
+{% block content_left %}
+
+
+{#    #内容，是bbs的编辑器#}
+    <div class="container">
+         <div class="col-lg-8">
+
+
+
+             <form class="form-horizontal" method="post" action="{% url 'create_article' %}" enctype="multipart/form-data"> {% csrf_token %}
+              <div class="form-group">
+                <label for="inputEmail3" class="col-sm-2 control-label">文章标题</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" name="title">
+                </div>
+              </div>
+
+
+
+
+
+              <div class="form-group">
+                <label for="inputEmail3" class="col-sm-2 control-label">文章简介</label>
+                <div class="col-sm-10">
+                  <textarea class="form-control" rows="4" name="summary"></textarea>
+                </div>
+              </div>
+
+             <div class="form-group">
+                <label for="inputEmail3" class="col-sm-2 control-label">标题图片</label>
+                <div class="col-sm-10">
+                  <input type="file" name="head_img"/>
+                </div>
+              </div>
+
+
+
+              <div class="form-group">
+                <label for="inputPassword3" class="col-sm-2 control-label">内容</label>
+                <div class="col-sm-10">
+                  <textarea id="create_bbs" name="content"></textarea>
+                </div>
+              </div>
+
+
+{#              <div class="form-group">#}
+{#                <div class="col-sm-offset-2 col-sm-10">#}
+{#                  <div class="checkbox">#}
+{#                    <label>#}
+{#                      <input type="checkbox"> Remember me#}
+{#                    </label>#}
+{#                  </div>#}
+{#                </div>#}
+{#              </div>#}
+{#                 #}
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="submit" class="btn btn-default">创建</button>
+                </div>
+              </div>
+
+            </form>
+
+         </div>
+    </div>
+
+
+
+
+
+{% endblock %}
+
+{% block bottom_js %}
+    <script src="/static/plugins/tinymce/js/tinymce/tinymce.min.js"></script>
+    <script type="text/javascript">
+        tinymce.init({
+            selector: "#create_bbs" {# ##需要自己定义textarea #}
+        });
+
+
+    </script>
+{% endblock %}

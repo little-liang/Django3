@@ -1,0 +1,45 @@
+body {
+    color: rgb(51, 51, 51);
+    font-family: Arial, 微软雅黑, "Microsoft yahei", "Hiragino Sans GB", "冬青黑体简体中文 w3", "Microsoft Yahei", "Hiragino Sans GB", "冬青黑体简体中文 w3", STXihei, 华文细黑, SimSun, 宋体, Heiti, 黑体, sans-serif;
+}
+
+body, html {
+    height: 100%;
+}
+
+.head-img img{
+    height: 165px;
+    width: 220px;
+}
+.col-lg-8{
+    width: 800px;
+}
+
+.blog-box{
+    /*border-bottom: 1px dashed darkgrey;*/
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+.blog-summary-btn{
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.blog-summary-btn, .blog-summary{
+    font-size: 14px;
+    color: #999;
+    line-height: 24px;
+}
+.blog-summary span{
+    margin-left: 20px;
+}
+
+.blog-summary span:hover{
+    color: green;
+}
+
+
+.blog-content{
+    margin-top: 10px;
+
+}

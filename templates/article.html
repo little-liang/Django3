@@ -1,0 +1,21 @@
+{% extends 'index.html' %}
+{% block content_left %}
+    <div class="container">
+         <div class="col-lg-8">
+             <h3>{{ article.title }}</h3>
+             <div class="blog_head_btn">
+             <div class="blog_head_btn">
+                <span>Author:{{ article.author.name }}</span>
+                <span>Time:{{ article.publish_date }}</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+                {# 反查评论数#}
+                <span><i class="fa fa-comment-o"></i> {{ article.comment_set.select_related.count }}</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+                <span><i class="fa fa-wechat"></i> {{ article.thumbup_set.select_related.count }}</span>
+             </div>
+
+             <div class="blog-content">
+                    <span>{{ article.content|safe }}</span>
+                </div>
+
+            </div>
+    </div>
+{% endblock %}

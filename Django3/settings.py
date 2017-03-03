@@ -94,6 +94,18 @@ DATABASES = {
     }
 }
 
+# #需要自己创建一个数据库
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql', #数据库类型
+#         'NAME': 's10day11', #数据库名字
+#         'USER': 'root',
+#         'PASSWORD': 'Abcd1234',
+#         'HOST': 'localhost',
+#         'PORT': 3306
+#     }
+# }
+
 
 
 
@@ -138,3 +150,5 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
     # os.path.join(BASE_DIR, '/var/www/hmtl'),
 )
+
+FileUploadDir = 'static/imgs/upload'

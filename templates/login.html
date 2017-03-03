@@ -1,14 +1,16 @@
 {% extends 'index.html' %}
-{% block all_container %}
+{% block content_left %}
+
+
     <div class="row">
         <div class="col-md-4">
 
         </div>
         <div class="col-lg-8">
-            <form class="" action="/login/" method="post">
+            <form class="" action="/accounts/login/" method="post">
                 {% csrf_token %}
                 <input type="text" name="username" placeholder="请输入用户名..."/>
-                <input type="text" name="password" placeholder="请输入密码..."/>
+                <input type="password" name="password" placeholder="请输入密码..."/>
                 <br/>
                 <hr/>
                 <input type="submit"  class="btn btn-info" value="登录"/>

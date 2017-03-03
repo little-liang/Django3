@@ -22,5 +22,9 @@ urlpatterns = [
     url(r'^host/$', views.host, name='host'),
     url(r'^asset/$', views.asset, name='asset'),
     url(r'^audit/$', views.audit, name='audit'),
-    url(r'^login/$', views.login, name='login')
+    url(r'^accounts/login/$', views.acc_login, name='login'),
+    url(r'^logout/$', views.acc_logout, name='logout'),
+    url(r'^article/(\d+)/$', views.article, name='article'),
+    url(r'^create_article/$', views.create_article, name='create_article'),
 ]
+
