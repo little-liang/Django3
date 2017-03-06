@@ -14,11 +14,12 @@ def index(request):
     })
 
 
-def article(request,article_id):
+def article(request, article_id):
     #文章随便写是找不到的
     err_msg = ''
     try:
         article_obj = models.Article.objects.get(id=article_id)
+        comments = utils.build_comments_tree(request)
     except BaseException as e:
         err_msg = str(e)
 
@@ -32,7 +33,7 @@ def create_article(request):
     if request.method == 'GET':
         return render(request, 'create_article.html')
     elif request.method == 'POST':
-        print(request.FILES)
+        print(request.FILES, "-------<<<<<")
 
         #为了bbs的创建，修改（多次），删除等，专门写一个类来处理
         #放在utlis中，utlis在APP中

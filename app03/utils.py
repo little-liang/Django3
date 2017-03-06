@@ -23,7 +23,8 @@ class ArticleGen(object):
         bbs_obj.save()
 
         filename = handle_upload_file(self.request, self.request.FILES['head_img'])
-        bbs_obj.head_img = "imgs/upload/%s" % (filename)
+        bbs_obj.head_img = "static/imgs/upload/%s" % (filename)
+        print("图片路径为", bbs_obj.head_img)
         bbs_obj.save()
         return bbs_obj
 
@@ -36,11 +37,41 @@ def handle_upload_file(request, file_obj):
     upload_dir = '%s/%s' % (settings.BASE_DIR, settings.FileUploadDir)
     #if not os.path.isdir(upload_dir):
     #    os.mkdir(upload_dir)
-    print('-->', file_obj)
+
 
     with open('%s/%s' % (upload_dir, file_obj.name), 'wb') as destination:
         for chunk in file_obj.chunks():
             destination.write(chunk)
 
-
+    print('上传的图片路径', '-->', upload_dir)
     return file_obj.name
+
+
+
+def recursive_search(data_dic, comment):
+    for parent, v in data_dic.items():
+        if parent == comment.parent_comment:
+            print("find parent of [%s]" % (comment))
+            data_dic[parent][comment] = {}
+        else:
+            print("can not [%s]'s parent,going to further layer" % (comment))
+            recursive_search(data_dic[parent], comment)
+
+def build_comments_tree(request):
+
+    bbs_obj = models.Article.objects.first()
+    tree_dic = {}
+
+    for comment in bbs_obj.comment_set.select_related():
+
+        if not comment.parent_comment:
+            tree_dic[comment] = {}
+            print("no father!!!", tree_dic)
+        else:
+            print("you  father@@")
+            recursive_search(tree_dic, comment)
+
+
+    # print("最后", tree_dic)
+    for k, v in tree_dic.items():
+        print(k, "--->", v)

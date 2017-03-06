@@ -12,7 +12,7 @@ class Article(models.Model):
     author = models.ForeignKey('Userprofile')         #作者与文章也是多对一关系
     #thumb_up = models.ForeignKey('ThumbUp', blank=True)     #点赞 和 文章是多对一关系,这里其实错了，不能多对一，只能一对多
     #comments = models.ManyToManyField('Comment', blank=True)  ##点赞 和 文章是多对一关系,这里其实错了，不能多对一，只能一对多
-    head_img = models.ImageField(upload_to='static/imgs/upload')
+    head_img = models.ImageField(upload_to='static/imgs/uploadCom')
     publish_date = models.DateTimeField(auto_now_add=True)  #文章创建时间是固定的，自动填写
     summary = models.CharField(max_length=500)  ##文章索引内容
 
@@ -44,7 +44,7 @@ class Comment(models.Model):
     ##这里就成自关联！！！自关联必须加related_name
 
     ##这里两个blank null为 True，意思就是 admin前端 界面 不让为空，数据库存储时不让为空
-    parent_commnet = models.ForeignKey('Comment', blank=True, null=True, related_name='pid')
+    parent_comment = models.ForeignKey('Comment', blank=True, null=True, related_name='pid')
 
     def __str__(self):
         return self.comments_title
