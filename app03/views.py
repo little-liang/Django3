@@ -1,17 +1,18 @@
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from app03 import models, utils
 # Create your views here.
 
-
-def index(request):
-    articles = models.Article.objects.all().order_by('publish_date')
-
-
-    return render(request, 'index.html', {
-        'articles': articles
-    })
+#
+# def index(request):
+#     articles = models.Article.objects.all().order_by('publish_date')
+#
+#
+#     return render(request, 'index.html', {
+#         'articles': articles
+#     })
 
 
 def article(request, article_id):
@@ -25,7 +26,8 @@ def article(request, article_id):
 
     return render(request, 'article.html', {
         'article': article_obj,
-        'err_msg': err_msg
+        'err_msg': err_msg,
+        'comments': comments
     })
 
 def create_article(request):
@@ -78,3 +80,23 @@ def acc_login(request):
 def acc_logout(request):
     logout(request)
     return HttpResponseRedirect("/")
+
+
+
+def index(request):
+    article_list = models.Article.objects.order_by('publish_date')
+    paginator = Paginator(article_list, 2) # Show 25 contacts per page
+
+    page = request.GET.get('page')
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        articles = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        articles = paginator.page(paginator.num_pages)
+
+    return render(request, 'index.html', {
+        'articles': articles
+    })
