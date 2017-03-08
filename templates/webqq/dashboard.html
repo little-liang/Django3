@@ -1,0 +1,100 @@
+{% extends 'index.html' %}
+
+{% block content_left %}
+    <div class="container">
+        <div class="col-lg-8 container-mid">
+
+            <div>
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#contact-box" aria-controls="home" role="tab" data-toggle="tab">联系人</a></li>
+                <li role="presentation"><a href="#contact-group-box" aria-controls="profile" role="tab" data-toggle="tab">群组</a></li>
+                <li role="presentation"><a href="#Config" aria-controls="settings" role="tab" data-toggle="tab">配置</a></li>
+              </ul>
+
+              <!-- Tab panes -->
+                <div role="tabpanel" class="tab-pane active" id="contact-box">
+                    <div class="row chat_box">
+
+                        <div class="contact_list col-md-5 col-lg-3">
+
+                            <div class="contact_list_head">
+                                <input type="text"/>
+                            </div>
+
+                            <div id="contact_list" class="list-group">
+{#                                这里能不能执行不知道，怎么调试#}
+                                {% for contact in request.user.userprofile.friends.select_related %}
+{#                                    自定义属性 contact_id  contact_type类型一对一single#}
+                                    <a contact_id="{{ contact.id }}" contact_type="single" href="#" class="list-group-item">{{ contact.name }}</a>
+                                {% endfor %}
+                            </div>
+
+
+
+                        </div>
+
+                        <div class="dialog_box col-md-9">
+                            <div class="dialog_box_head">
+                                alex chating,,,,
+                            </div>
+
+                            <div class="dialog_box_content">
+                                alex ...
+                            </div>
+                            <div class="dialog_box_utils">
+                                img
+                            </div>
+                            <div class="dialog_box_sendmsg">
+                                <textarea name="msg"></textarea>
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                </div>
+{#                <div role="tabpanel" class="tab-pane" id="contact-group-box">群组kkkk</div>#}
+{#                <div role="tabpanel" class="tab-pane" id="Config">配置</div>#}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block bottom_js %}
+<script type="text/javascript">
+
+{#    载入界面时操作#}
+    $(document).ready(function () {
+        $("#contact_list a").click(function () {
+            $(this).addClass("active");
+            $(this).siblings().removeClass("active");
+
+{#            调用外围自定义函数#}
+            SwitchChatBox(this);
+        });
+
+    });
+
+{#    与上面的自定义标签属性有关系,JS太弱了#}
+    function SwitchChatBox(ele) {
+
+        从自定义标签属性中取数据
+        var current_uid = $(ele).attr("contact_id");
+        var current_dialog_type = $(ele).attr("contact_type");
+        var current_contact_name = $(ele).text();
+
+{#        #凑 html#}
+        var dialog_head_html = "<span contact_id='"+current_uid+"    'contact_type='"+current_dialog_type+"'>" + current_contact_name +"</span>";
+
+        $(".dialog_box_head").html(dialog_head_html)
+    }
+
+</script>
+{% endblock %}

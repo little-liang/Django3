@@ -13,9 +13,13 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+
 from django.contrib import admin
 from app03 import views
+from webqq import urls as chat_urls
+from django.conf.urls import url, include
+
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.index),
@@ -26,5 +30,9 @@ urlpatterns = [
     url(r'^logout/$', views.acc_logout, name='logout'),
     url(r'^article/(\d+)/$', views.article, name='article'),
     url(r'^create_article/$', views.create_article, name='create_article'),
+    url(r'^chat/', include(chat_urls)),
 ]
+
+
+
 

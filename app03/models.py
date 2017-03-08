@@ -55,6 +55,9 @@ class UserProfile(models.Model):
     name = models.CharField(max_length=32)      #名字可以重名
     user_groups = models.ManyToManyField('UserGroup')
 
+    friends = models.ManyToManyField('self', blank=True, related_name='my_friends')
+
+
     def __str__(self):
         return self.name
 

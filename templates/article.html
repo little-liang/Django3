@@ -1,4 +1,5 @@
 {% extends 'index.html' %}
+{% load custom %}
 {% block content_left %}
     <div class="container">
          <div class="col-lg-8">
@@ -14,8 +15,13 @@
 
              <div class="blog-content">
                     <span>{{ article.content|safe }}</span>
-                </div>
 
-            </div>
+                 </div>
+             </div>
+
+             <div class="blog-content">
+                 <hr/>
+                 {% build_comment_tree comments %}
+             </div>
     </div>
 {% endblock %}
