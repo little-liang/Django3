@@ -83,6 +83,7 @@ body, html {
 .dialog_box_content{
     height: 75%;
     background-color: #b1cd77;
+    overflow: auto;
 }
 .dialog_box_utils{
     height: 5%;
