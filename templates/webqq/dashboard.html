@@ -1,6 +1,7 @@
 {% extends 'index.html' %}
 
 {% block content_left %}
+    {% csrf_token %}
     <div class="container">
         <div class="col-lg-8 container-mid">
 
@@ -27,7 +28,10 @@
 {#                                这里能不能执行不知道，怎么调试#}
                                 {% for contact in request.user.userprofile.friends.select_related %}
 {#                                    自定义属性 contact_id  contact_type类型一对一single#}
-                                    <a contact_id="{{ contact.id }}" contact_type="single" href="#" class="list-group-item">{{ contact.name }}</a>
+                                    <a contact_id="{{ contact.id }}" contact_type="single" href="#" class="list-group-item">
+                                        <span style="background-color: orange;" class="badge hide">0</span>
+                                        {{ contact.name }}
+                                    </a>
                                 {% endfor %}
                             </div>
 
@@ -37,11 +41,12 @@
 
                         <div class="dialog_box col-md-9">
                             <div class="dialog_box_head">
-                                alex chating,,,,
+{#                                <!--  这是默认值,防止出错 其实这里会出错，没有-10#}
+                                <span contact_id="-10" contact_type="single">聊天室</span>
                             </div>
 
-                            <div class="dialog_box_content">
-                                alex ...
+                            <div id="dialog_box_content" class="dialog_box_content">
+
                             </div>
                             <div class="dialog_box_utils">
                                 img
@@ -68,33 +73,207 @@
 {% endblock %}
 
 {% block bottom_js %}
+
+
+
 <script type="text/javascript">
 
-{#    载入界面时操作#}
+    //切换对话框时，让对话内容存在
+    all_dialog_sessions = {
+        'single': {},
+        'group': {},
+    }
+
+    //载入界面时操作
     $(document).ready(function () {
+
+        //定时器，定时刷新3秒,从后台接收别人发送的消息
+        RefreshMsgs = setInterval(function () {
+            //接收信息函数
+            GetNewMsg();
+        },3000);
+
+
+
+
+        //在单击时的操作，切换聊天的人
         $("#contact_list a").click(function () {
             $(this).addClass("active");
+
+            //这里点击有未读消息的联系人，消息数字隐藏，class消失
+            $(this).children("span").addClass("hide");
+            $(this).children("span").text("0");
+
+            //他的兄弟全部去掉css
             $(this).siblings().removeClass("active");
 
-{#            调用外围自定义函数#}
+            //调用外围自定义函数,
             SwitchChatBox(this);
         });
 
     });
 
-{#    与上面的自定义标签属性有关系,JS太弱了#}
+    //与上面的自定义标签属性有关系,JS太弱了
     function SwitchChatBox(ele) {
 
-        从自定义标签属性中取数据
+        //从自定义标签属性中取数据
         var current_uid = $(ele).attr("contact_id");
         var current_dialog_type = $(ele).attr("contact_type");
         var current_contact_name = $(ele).text();
 
-{#        #凑 html#}
-        var dialog_head_html = "<span contact_id='"+current_uid+"    'contact_type='"+current_dialog_type+"'>" + current_contact_name +"</span>";
+        //把切换时的 老session内容报存起来
+        var old_session_id = $(".dialog_box_head span").attr("contact_id");
+        var old_session_type = $(".dialog_box_head span").attr("contact_type");
 
-        $(".dialog_box_head").html(dialog_head_html)
+        //把切换时的 老session内容报存起来
+        Sessionhandle(old_session_id, old_session_type, 'dump');
+        //切换时，新的session内容加载进来
+        var current_dialog_content = Sessionhandle(current_uid, current_dialog_type, 'load');
+        $(".dialog_box_content").html(current_dialog_content);
+
+        //凑 html
+        var dialog_head_html = "<span contact_id='"+current_uid+"'contact_type='"+current_dialog_type+"'>" + current_contact_name +"</span>";
+
+        $(".dialog_box_head").html(dialog_head_html);
     }
+
+
+
+
+        //jquery的一个方法
+		//body下textarea的绑定一个事件，keydown敲一下键盘时，keyup键盘弹起式时
+    $("body").delegate("textarea", "keydown", function(e){
+            if(e.which == 13) {//敲回车键盘
+                //发送 消息（敲回车后）
+                var msg_text = $("textarea").val();
+
+				//trim就是去掉空格
+
+
+                if ($.trim(msg_text).length > 0) {
+
+                    //控制台可以取到这个消息内容
+                    //console.log(msg_text);
+                    //发给后台
+                    SendMsg(msg_text);
+
+                    //no wait the send_msg's call confirm msg
+                    AddSentMsgIntoBox(msg_text);
+                    $("textarea").val('');
+                }
+
+            }
+    });
+
+
+    function SendMsg(msg) {
+        var msg_dic = {
+            'from_id': "{{ request.user.userprofile.id }}",
+
+            //这里获取了属性信息，why？
+            'to_id': $(".dialog_box_head span").attr("contact_id"),
+            'contact_type': $(".dialog_box_head span").attr("contact_type"),
+            'msg': msg
+        };
+
+
+
+        //这里应该用ajax做向后台发送处理的,POST就会涉及到csrf的事，这次在最大的container下面，放一个,查查这边的csrf的原因
+        // post会根据token的id做判断，所以post必须要有toke值，token值已经在网页container生成了。
+        //你想想 每次 提交都要有一个 token，这个太恶心，Django官方出来了个自动全局的，查查
+        $.post("{% url 'chat_send_msg' %}", {'data': JSON.stringify(msg_dic), 'csrfmiddlewaretoken': $("input[name = 'csrfmiddlewaretoken']").val()}, function(callback){
+            console.log(callback);
+        });
+
+    }
+
+    //做一个保存当前会话内容，加载先前内容
+    function Sessionhandle(contact_id , contact_type, action) {
+        if (action == 'dump'){//保存当前的聊天记录
+            var current_dialog_content = $(".dialog_box_content").html();
+            all_dialog_sessions[contact_type][contact_id] = current_dialog_content;
+        }
+        else if(action=='load'){ //把制定的contact_id的聊天记录打印出来
+            var new_dialog_content = '';
+            if (all_dialog_sessions[contact_type].hasOwnProperty(contact_id)){
+                new_dialog_content = all_dialog_sessions[contact_type][contact_id];
+            }
+
+            return new_dialog_content;
+
+        }
+
+    }
+
+    function AddSentMsgIntoBox(msg_text){
+
+        var msg_div = "<div class='row'><div class='pull-right'>" +
+            "<span>" + "{{ request.user.userprofile.name }}" + "</span>" + " " +
+            "<span>" + new Date() + "</span>" +
+            "<h4><p>" + msg_text + "</p></h4>" + "</div></div>";
+
+        //遇到坑了，JS中尽量用id来实现功能,这时候前端会直接 append很远，超过对话框，CSS样式中 要用overflow才行overflow: auto;
+        $('.dialog_box_content').append(msg_div);
+
+
+        //这里其实是滚动后，不显示最后一行，最号用google查询 div auto scroll to buttom
+        //动画效果
+         $('.dialog_box_content').animate({
+            scrollTop: $('.dialog_box_content')[0].scrollHeight}, 500);
+
+    }
+
+
+    //从后台定时刷新消息
+    function GetNewMsg() {
+
+        //获取当前的收信人和名字
+        var current_contact_id = $(".dialog_box_head span").attr("contact_id");
+        var current_contact_name = $(".dialog_box_head span").text();
+
+
+
+        $.get("{% url 'get_new_msg' %}", {'uid': "{{ request.user.userprofile.id }}"}, function(callback){
+
+            //把字符串转为JSON，前端认识的
+            callback = JSON.parse(callback);
+
+            console.log(callback);
+
+            //把对应的消息发给对应的联系人
+            $.each(callback, function (index, msg) {
+               if(msg.from_id == current_contact_id){
+                   var msg_div = "<div>" +
+                           "<span>" + current_contact_name + "</span>" +
+                           "<span>" + msg.date + "</span>" +
+                           "<p>" + msg.msg+ "</p>" +
+                           "</div>";
+                   $(".dialog_box_content").append(msg_div);
+
+               }
+               else{ //不属于当前会话
+                   var msg_count_ele = $(".contact_list a[contact_id='"+ msg.from_id +"'] span");
+                   msg_count_ele.text(parseInt(msg_count_ele.text()) + 1);
+                   msg_count_ele.removeClass("hide");
+                    //同时把这条消息暂存在全局临时变量里(就是冒数字那些隐藏会话)
+                   var msg_sender_name = $(".contact_list a[contact_id='"+ msg.from_id +"']").text();
+                   var msg_div = "<div>" +
+                           "<span>" + msg_sender_name + "</span>" +
+                           "<span>" + msg.date + "</span>" +
+                           "<p>" + msg.msg+ "</p>" +
+                           "</div>";
+
+                   var old_session_content = Sessionhandle(msg.from_id, msg.contact_type, 'load');
+                   var new_session_content = old_session_content + msg_div;
+                   all_dialog_sessions[msg.contact_type][msg.from_id] = new_session_content;
+
+               };
+
+            });
+
+        });
+    }
+
 
 </script>
 {% endblock %}
