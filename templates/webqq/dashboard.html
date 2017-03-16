@@ -87,13 +87,14 @@
     //载入界面时操作
     $(document).ready(function () {
 
-        //定时器，定时刷新3秒,从后台接收别人发送的消息
-        RefreshMsgs = setInterval(function () {
-            //接收信息函数
-            GetNewMsg();
-        },3000);
+{#        ！！！！！！！！！这里不能用这个，线程开启太多！！！！！！！！！！#}
+{#        //定时器，定时刷新3秒,从后台接收别人发送的消息,这个是异步的，每请求一次就会建立一个线程#}
+{#        RefreshMsgs = setInterval(function () {#}
+{#            //接收信息函数#}
+{#            GetNewMsg();#}
+{#        },3000);#}
 
-
+        GetNewMsg()
 
 
         //在单击时的操作，切换聊天的人
@@ -232,8 +233,9 @@
         var current_contact_name = $(".dialog_box_head span").text();
 
 
-
+        //这里的get是不堵塞的，一直会开新线程，所以，用递归思想，放到each下面
         $.get("{% url 'get_new_msg' %}", {'uid': "{{ request.user.userprofile.id }}"}, function(callback){
+
 
             //把字符串转为JSON，前端认识的
             callback = JSON.parse(callback);
@@ -267,12 +269,12 @@
                    var new_session_content = old_session_content + msg_div;
                    all_dialog_sessions[msg.contact_type][msg.from_id] = new_session_content;
 
-               };
+               }; //end else
 
-            });
-
-        });
-    }
+            }); //end each
+            GetNewMsg();
+        }); //end get
+    } //
 
 
 </script>
